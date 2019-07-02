@@ -169,6 +169,7 @@ Returns 1 or 0
 
 sub accuracy_at_least {
     my ($self, $target) = @_;
+    $target = 'thoroughfare' if $target eq 'street';
     return 0 unless $self->status_at_least('partial');
     my $target_level = $accuracy_level{$target} // die 'unknown target accuracy ' . $target;
     my $actual_level = $accuracy_level{$self->address_precision} // die 'unknown accuracy ' . $self->address_precision;
