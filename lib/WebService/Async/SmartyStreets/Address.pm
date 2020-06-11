@@ -149,6 +149,7 @@ my %accuracy_level = (
     thoroughfare => 3,
     premise => 4,
     delivery_point => 5,
+    deliverypoint => 5,
 );
 
 =head2 accuracy_at_least
