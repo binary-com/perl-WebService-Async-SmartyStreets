@@ -150,7 +150,7 @@ my %accuracy_level = (
     premise => 4,
     delivery_point => 5,
     # I checked the API and delivery_point is indeed correct,  however we are supporting
-     # deliverypoint because we are not clear on what caused this.
+    # both because we are not clear on what caused this.
     deliverypoint => 5,
 );
 
