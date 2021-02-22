@@ -6,7 +6,6 @@ use Test::MockModule;
 use Test::Fatal;
 use WebService::Async::SmartyStreets;
 use Future::AsyncAwait;
-
 my $user_agent = Test::MockModule->new('Net::Async::HTTP');
 $user_agent->mock(
     GET => sub {
@@ -61,14 +60,14 @@ subtest "Call SmartyStreets" => sub {
     );
 
     my $addr = $ss->verify(%data)->get();
-
     # Check if status check is correct
     is ($addr->status_at_least('none'), 1, "Verification score is correct");
     is ($addr->status_at_least('verified'), '', "Verification score is correct");
     
     # Check if address accuracy level check is correct
     is ($addr->accuracy_at_least('locality'), 1, "Accuracy checking is correct");
-    is ($addr->accuracy_at_least('delivery_point'), '', "Accuracy checking is correct");
+    is ($addr->accuracy_at_least('administrativearea'), 1, "Accuracy checking is correct");
+    is ($addr->accuracy_at_least('deliverypoint'), '', "Accuracy checking is correct");
 };
 
 done_testing();
