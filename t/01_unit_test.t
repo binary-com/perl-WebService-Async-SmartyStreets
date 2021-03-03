@@ -35,8 +35,8 @@ subtest 'Parsing test' => sub {
     
     # Check if address accuracy level check is correct
     is ($parsed_data->accuracy_at_least('locality'), 1, "Accuracy checking is correct");
-    is ($parsed_data->accuracy_at_least('delivery_point'), '', "Accuracy checking is correct");
-
+    is ($parsed_data->accuracy_at_least('administrativearea'), 1, "Accuracy checking is correct");
+    is ($parsed_data->accuracy_at_least('deliverypoint'), '', "Accuracy checking is correct");
 };
 
 done_testing;
