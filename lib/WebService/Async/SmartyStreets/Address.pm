@@ -99,7 +99,7 @@ sub address_format { shift->{metadata}{address_format} }
 
 =cut
 
-sub status { lc shift->{analysis}{verification_status} // ''}
+sub status { lc(shift->{analysis}{verification_status} // '')}
 
 =head2 address_precision
 
