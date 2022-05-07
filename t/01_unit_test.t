@@ -56,5 +56,5 @@ subtest lc_uninitialie_error => sub{
      is($parsed_data->status, '', 'undef will be empty string');
      is($parsed_data->address_precision, '', 'undef will be empty string');
      is($parsed_data->max_address_precision, '', 'undef will be empty string');
-}
+};
 done_testing;
