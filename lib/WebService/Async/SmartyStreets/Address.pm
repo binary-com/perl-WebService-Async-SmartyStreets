@@ -99,19 +99,19 @@ sub address_format { shift->{metadata}{address_format} }
 
 =cut
 
-sub status { lc shift->{analysis}{verification_status} // ''}
+sub status { lc(shift->{analysis}{verification_status} // '')}
 
 =head2 address_precision
 
 =cut
 
-sub address_precision { lc shift->{analysis}{address_precision} // ''}
+sub address_precision { lc(shift->{analysis}{address_precision} // '')}
 
 =head2 max_address_precision
 
 =cut
 
-sub max_address_precision { lc shift->{analysis}{max_address_precision} // ''}
+sub max_address_precision { lc(shift->{analysis}{max_address_precision} // '')}
 
 # Maps each verification response into a score
 my %status_level = (

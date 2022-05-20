@@ -11,7 +11,6 @@ on configure => sub {
 
 on test => sub {
     requires 'Test::More';
-    requires 'Test::Warn';
-    requires 'Test::FailWarnings';
     requires 'Test::Fatal';
+    requires 'Test::Warnings';
 };

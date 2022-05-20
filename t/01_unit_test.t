@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Warnings;
 use WebService::Async::SmartyStreets::Address;
 
 subtest 'Parsing test' => sub {
@@ -39,4 +40,21 @@ subtest 'Parsing test' => sub {
     is ($parsed_data->accuracy_at_least('deliverypoint'), '', "Accuracy checking is correct");
 };
 
+subtest lc_uninitialie_error => sub{
+     my %dummy_data = (
+        input_id => 12345,
+        organization => 'Beenary',
+        metadata => {
+            latitude => 101.2131,
+            longitude => 180.1223,
+            geocode_precision => "Premise",
+        },
+        analysis => {
+        });
+
+     my $parsed_data = WebService::Async::SmartyStreets::Address->new(%dummy_data);
+     is($parsed_data->status, '', 'undef will be empty string');
+     is($parsed_data->address_precision, '', 'undef will be empty string');
+     is($parsed_data->max_address_precision, '', 'undef will be empty string');
+};
 done_testing;
