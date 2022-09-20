@@ -49,6 +49,7 @@ use Future::AsyncAwait;
 use Net::Async::HTTP;
 use JSON::MaybeUTF8 qw(:v1);
 use Syntax::Keyword::Try;
+use Scalar::Util qw(blessed);
 
 use WebService::Async::SmartyStreets::Address;
 
@@ -173,8 +174,8 @@ async sub get_decoded_data {
     }
     catch ($e) {
         if (blessed($e) and $e->isa('Future::Exception')) {
-
             my ($payload) = $e->details;
+
             if (blessed($payload) && $payload->can('content')) {
                 my $resp = decode_json_utf8($payload->content);
                 my $errors = $resp->{errors} // [];
