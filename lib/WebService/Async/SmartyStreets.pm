@@ -171,8 +171,22 @@ async sub get_decoded_data {
     try {
         $res = await $self->ua->GET($uri);
     }
-    catch {
-        die "Unable to retrieve response.";
+    catch ($e) {
+        if (blessed($e) and $e->isa('Future::Exception')) {
+
+            my ($payload) = $e->details;
+            if (blessed($payload) && $payload->can('content')) {
+                my $resp = decode_json_utf8($payload->content);
+                my $errors = $resp->{errors} // [];
+                my ($error) = $errors->@*;
+
+                if ($error && $error->{message}) {
+                    $log->warnf(sprintf("SmartyStreets HTTP status %d error: %s",$payload->code, $error->{message}));
+                }
+            }
+        }
+
+        die 'Unable to retrieve response.';
     };
 
     my $response = decode_json_utf8($res->decoded_content);
