@@ -2,10 +2,16 @@ use strict;
 use warnings;
 use Future;
 use Test::More;
+use Log::Any::Test; 
+use Log::Any qw($log);
 use Test::MockModule;
 use Test::Fatal;
+use Test::Deep;
 use WebService::Async::SmartyStreets;
 use Future::AsyncAwait;
+use Future::Exception;
+use JSON::MaybeUTF8 qw(:v1);
+
 my $user_agent = Test::MockModule->new('Net::Async::HTTP');
 $user_agent->mock(
     GET => sub {
@@ -22,7 +28,7 @@ $mock_ss->mock(
         return 1;
     },
     
-    get_decoded_data => sub{
+    get_decoded_data => sub {
         my $data = [{
             input_id => 12345,
             organization => 'Beenary',
@@ -68,6 +74,60 @@ subtest "Call SmartyStreets" => sub {
     is ($addr->accuracy_at_least('locality'), 1, "Accuracy checking is correct");
     is ($addr->accuracy_at_least('administrativearea'), 1, "Accuracy checking is correct");
     is ($addr->accuracy_at_least('deliverypoint'), '', "Accuracy checking is correct");
+};
+
+subtest 'HTTP Error' => sub {
+    $mock_ss->unmock_all;
+    
+    $user_agent->mock(
+        GET => sub {
+            my $res = HTTP::Response->new(402);
+
+            $res->content(encode_json_utf8({
+                errors => [
+                    {
+                        id => 1588026162,
+                        message => 'Active subscription required (1588026162): The optional license value supplied (if any) was valid and understood, but the account does not have the necessary active subscription to allow this operation to continue.'
+                    }
+                ]
+            }));
+
+            Future::Exception->throw('HTTP Failure', 'http', $res);
+        });
+
+
+    my $ss = WebService::Async::SmartyStreets->new(
+        international_auth_id => '...',
+        international_token => '...',
+    );
+    
+    my %data = (
+        api_choice          => 'international',
+        address1            => 'Jalan 1223 Jamse Bndo 012',
+        address2            => '03/03',
+        locality            => 'Sukabumi',
+        administrative_area => 'JB',
+        postal_code         => '43145',
+        country             => 'Indonesia',
+        geocode             => 'true',
+    );
+
+    $log->clear();
+
+    my $e = exception { $ss->verify(%data)->get };
+
+    cmp_deeply, $log->msgs, [{
+        category => 'WebService::Async::SmartyStreets',
+        message => 'GET https://international-street.api.smartystreets.com/verify?administrative_area=JB&address2=03%2F03&locality=Sukabumi&address1=Jalan+1223+Jamse+Bndo+012&country=Indonesia&api_choice=international&postal_code=43145&geocode=true&auth-id=...&auth-token=...&input-id=AA00000001',
+        level => 'trace'
+    },
+    {
+        level => 'warning',
+        message => 'SmartyStreets HTTP status 402 error: Active subscription required (1588026162): The optional license value supplied (if any) was valid and understood, but the account does not have the necessary active subscription to allow this operation to continue.',
+        category => 'WebService::Async::SmartyStreets'
+    }];
+
+    ok $e =~ /Unable to retrieve response/, 'Exception caught';
 };
 
 done_testing();
