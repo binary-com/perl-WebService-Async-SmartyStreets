@@ -18,6 +18,20 @@ $user_agent->mock(
         return Future->done();
     });
 
+my $data = [{
+    input_id => 12345,
+    organization => 'Beenary',
+    metadata => {
+        latitude => 101.2131,
+        longitude => 180.1223,
+        geocode_precision => "Premise",
+    },
+    analysis => {
+        verification_status => "Partial",
+        address_precision => "Premise",
+    },
+    }
+];
 my $mock_ss = Test::MockModule->new('WebService::Async::SmartyStreets');
 $mock_ss->mock(
     international_auth_id => sub {
@@ -29,20 +43,6 @@ $mock_ss->mock(
     },
     
     get_decoded_data => sub {
-        my $data = [{
-            input_id => 12345,
-            organization => 'Beenary',
-            metadata => {
-                latitude => 101.2131,
-                longitude => 180.1223,
-                geocode_precision => "Premise",
-            },
-            analysis => {
-                verification_status => "Partial",
-                address_precision => "Premise",
-            },
-            }
-        ];
         return Future->done($data);
     });
 
@@ -74,6 +74,31 @@ subtest "Call SmartyStreets" => sub {
     is ($addr->accuracy_at_least('locality'), 1, "Accuracy checking is correct");
     is ($addr->accuracy_at_least('administrativearea'), 1, "Accuracy checking is correct");
     is ($addr->accuracy_at_least('deliverypoint'), '', "Accuracy checking is correct");
+
+    $data = [{
+        input_id => 12345,
+        organization => 'Beenary',
+        metadata => {
+            latitude => 101.2131,
+            longitude => 180.1223,
+            geocode_precision => "Premise",
+        },
+        analysis => {
+            verification_status => "",
+            address_precision => "Premise",
+        },
+        }
+    ];
+
+    $addr = $ss->verify(%data)->get();
+    is ($addr->status_at_least('partial'), '', "Verification score is correct for empty status");
+
+    # empty response case, this means adddress is invalid
+    # get_decoded_data returns the first element of the data, we wanted to test empty response [], so `undef` would be the result of that operation.
+    
+    $data = undef; 
+    $addr = $ss->verify(%data)->get();
+    is ($addr->status_at_least('partial'), '', "Verification score is correct for empty http response");
 };
 
 subtest 'HTTP Error' => sub {

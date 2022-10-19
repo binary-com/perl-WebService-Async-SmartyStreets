@@ -53,7 +53,7 @@ subtest lc_uninitialie_error => sub{
         });
 
      my $parsed_data = WebService::Async::SmartyStreets::Address->new(%dummy_data);
-     is($parsed_data->status, '', 'undef will be empty string');
+     is($parsed_data->status, 'none', 'undef will be none');
      is($parsed_data->address_precision, '', 'undef will be empty string');
      is($parsed_data->max_address_precision, '', 'undef will be empty string');
 };

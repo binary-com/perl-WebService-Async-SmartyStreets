@@ -108,6 +108,7 @@ async sub verify {
 
     $log->tracef('=> %s', $decoded);
     $decoded = [ $decoded ] unless ref($decoded) eq 'ARRAY';
+   
     return map { WebService::Async::SmartyStreets::Address->new(%$_) } @$decoded;
 }
 
