@@ -7,7 +7,7 @@ use warnings;
 
 =head1 NAME
 
-WebService::Async::SmartyStreets::Address - object that contains the response from SmartyStreets API 
+WebService::Async::SmartyStreets::Address - object that contains the response from SmartyStreets API
 
 =head1 SYNOPSIS
 
@@ -24,13 +24,13 @@ WebService::Async::SmartyStreets::Address - object that contains the response fr
         });
     # Accessing the attributes
     print ($response->status);
-    
+
 =head1 DESCRIPTION
 
 Represents (parses) the return response from SmartyStreets API in an object
 
 =head2 Construction
-    
+
     WebService::Async::SmartyStreets::Address->new(
         input_id => 12345,
         organization => 'Beenary',
