@@ -87,6 +87,8 @@ Returns a L<Future> which should resolve to a valid L<WebService::Async::SmartyS
 
 =cut
 
+# keyword 'async' will cause critic test fail. disable it
+## no critic (RequireEndWithOne.pm)
 async sub verify {
     my ($self, %args) = @_;
 
