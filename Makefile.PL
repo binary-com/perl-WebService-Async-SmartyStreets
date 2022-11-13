@@ -2,39 +2,53 @@
 use strict;
 use warnings;
 
-use 5.014000;
+use 5.006;
 
-use ExtUtils::MakeMaker 6.48;
+use ExtUtils::MakeMaker 7.64;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Access SmartyStreet API",
-  "AUTHOR" => "binary.com <BINARY\@cpan.org>",
+  "AUTHOR" => "DERIV <DERIV\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.64"
+    "ExtUtils::MakeMaker" => "7.64"
   },
   "DISTNAME" => "WebService-Async-SmartyStreets",
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.014000",
+  "MIN_PERL_VERSION" => "5.006",
   "NAME" => "WebService::Async::SmartyStreets",
   "PREREQ_PM" => {
     "Future::AsyncAwait" => "0.21",
+    "IO::Async::Notifier" => 0,
     "IO::Async::SSL" => 0,
+    "JSON::MaybeUTF8" => 0,
+    "Log::Any" => 0,
     "Net::Async::HTTP" => "0.44",
+    "Scalar::Util" => 0,
+    "Syntax::Keyword::Try" => 0,
+    "URI" => 0,
+    "URI::QueryParam" => 0,
     "indirect" => 0,
     "mro" => 0,
-    "parent" => 0
+    "parent" => 0,
+    "strict" => 0,
+    "warnings" => 0
   },
   "TEST_REQUIRES" => {
     "ExtUtils::MakeMaker" => 0,
     "File::Spec" => 0,
+    "Future" => 0,
+    "Future::Exception" => 0,
     "IO::Handle" => 0,
     "IPC::Open3" => 0,
+    "Log::Any::Test" => 0,
     "Test::CheckDeps" => "0.010",
+    "Test::Deep" => 0,
     "Test::Fatal" => 0,
+    "Test::MockModule" => 0,
     "Test::More" => "0.94",
     "Test::Warnings" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -44,18 +58,32 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
+  "Future" => 0,
   "Future::AsyncAwait" => "0.21",
+  "Future::Exception" => 0,
+  "IO::Async::Notifier" => 0,
   "IO::Async::SSL" => 0,
   "IO::Handle" => 0,
   "IPC::Open3" => 0,
+  "JSON::MaybeUTF8" => 0,
+  "Log::Any" => 0,
+  "Log::Any::Test" => 0,
   "Net::Async::HTTP" => "0.44",
+  "Scalar::Util" => 0,
+  "Syntax::Keyword::Try" => 0,
   "Test::CheckDeps" => "0.010",
+  "Test::Deep" => 0,
   "Test::Fatal" => 0,
+  "Test::MockModule" => 0,
   "Test::More" => "0.94",
   "Test::Warnings" => 0,
+  "URI" => 0,
+  "URI::QueryParam" => 0,
   "indirect" => 0,
   "mro" => 0,
-  "parent" => 0
+  "parent" => 0,
+  "strict" => 0,
+  "warnings" => 0
 );
 
 
