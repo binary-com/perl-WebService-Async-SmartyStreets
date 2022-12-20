@@ -2,4 +2,6 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.001     2022-11-13 08:00:53+00:00 UTC
+
         Pre-release version. Released as a proof of concept.

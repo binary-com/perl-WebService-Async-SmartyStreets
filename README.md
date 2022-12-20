@@ -1,235 +1,83 @@
 # NAME
 
-WebService::Async::SmartyStreets::Address - parses the response from SmartyStreets API
-
-# VERSION
-
-version 0.001
+WebService::Async::SmartyStreets - calls the SmartyStreets API and checks for the validity of the address
 
 # SYNOPSIS
 
-    use WebService::Async::SmartyStreets::Address;
-    # Mocking a simple response from SmartyStreets API and parses it with WebService::Async::SmartyStreets::Address
-    my $response = WebService::Async::SmartyStreets::Address->new(
-            metadata => {
-            latitude => 101.2131,
-            longitude => 180.1223,
-            geocode_precision => "Premise",
-        },
-        analysis => {
-            verification_status => "Partial",
-            address_precision => "Premise",
-        });
-    # Accessing the attributes
-    print ($response->status);
-    
-# DESCRIPTION
-
-This module parses the response by SmartyStreets API into an object to access them.
-
-## Construction
-
-    WebService::Async::SmartyStreets::Address->new(
-        input_id => 12345,
-        organization => 'Beenary',
-        metadata => {
-            latitude => 101.2131,
-            longitude => 180.1223,
-            geocode_precision => "Premise",
-        },
-        analysis => {
-            verification_status => "Partial",
-            address_precision => "Premise",
-        });
-
-## Sample SmartyStreets API response
-
-    [
-      {
-        "address1": "Hainichener Str. 64",
-        "address2": "09599 Freiberg",
-        "components": {
-          "administrative_area": "Sachsen",
-          "sub_administrative_area": "Früher: Direktionsbezirk Chemnitz",
-          "country_iso_3": "DEU",
-          "locality": "Freiberg",
-          "postal_code": "09599",
-          "postal_code_short": "09599",
-          "premise": "64",
-          "premise_number": "64",
-          "thoroughfare": "Hainichener Str.",
-          "thoroughfare_name": "Hainichenerstr.",
-          "thoroughfare_trailing_type": "Str."
-        },
-        "metadata": {
-          "latitude": 50.92221,
-          "longitude": 13.32259,
-          "geocode_precision": "Premise",
-          "max_geocode_precision": "DeliveryPoint",
-          "address_format": "thoroughfare premise|postal_code locality"
-        },
-        "analysis": {
-          "verification_status": "Verified",
-          "address_precision": "Premise",
-          "max_address_precision": "DeliveryPoint"
-        }
-      }
-    ]
-
-# Attributes
-
-All attributes that is parsed includes:
-
-- input_id
-- organization
-- latitude 
-- longitude
-- geocode_precision 
-- max_geocode_precision
-- address_format 
-- verification_status 
-- address_precision 
-- max_address_precision
-
-For more information about the attributes, click [here](https://smartystreets.com/docs/cloud/international-street-api)
-
-# Methods
-
-## status_at_least
-
-Checks if the returned response at least hits a certain level (in terms of score).
-
-## accuracy_at_least
-
-Checks if the returned response at least hits a certain accuracy (in terms of score).
-Instantly returns 0 if the status is lower than 'partial'.
-
-# Attributes
-
-## input_id
-
-Returns the input_id parsed.
-
-## organization
-
-Returns the organization parsed.
-
-## latitude 
-
-Returns the latitude parsed.
-
-## longitude
-
-Returns the latitude parsed.
-
-## geocode_precision 
-
-Returns the geocode_precision parsed.
-
-## max_geocode_precision
-
-Returns the max_geocode_precision parsed.
-
-## address_format 
-
-Returns the value of address_format parsed.
-
-## status 
-
-Returns the value of verification_status parsed.
-
-The value returned should be either:
-
-- none
-- ambiguous
-- partial
-- verified
-
-## address_precision 
-
-Returns the value of address_precision parsed.
-
-## max_address_precision
-
-Returns the value of max_address_precision parsed.
-
----
-
-# NAME
-
-WebService::Async::SmartyStreets;
-
-# SYNOPSIS
-
-    my $loop = IO::Async::Loop->new;
-    $loop->add(
-        my $ss = WebService::Async::SmartyStreets->new(
-            # International token
-            auth_id => '...',
-            token => '...',
-            api_choice => '...',
-        )
+    my $ss = WebService::Async::SmartyStreets->new(
+        # Obtain these from your SmartyStreets account page.
+        # These will be used for US lookups
+        us_auth_id => '...',
+        us_token   => '...',
+        # For non-US address lookups, you would also need an international token
+        international_auth_id => '...',
+        international_token   => '...',
     );
-    async sub {
-        my $addr = await $ss->verify(
-            # insert address here
-        );
-    }->get;
-    
+    IO::Async::Loop->new->add($ss);
+
+    print $ss->verify(
+        city => 'Atlanta',
+        country => 'US',
+        geocode => 1
+    )->get->status;
+
 # DESCRIPTION
 
-This class calls the SmartyStreets API and parse the response to `WebService::Async::SmartyStreets::Address`
+This module provides basic support for the [SmartyStreets API](https://smartystreets.com/).
 
-# METHODS
+Note that this module uses [Future::AsyncAwait](https://metacpan.org/pod/Future%3A%3AAsyncAwait).
 
 ## verify
 
-Makes connection to SmartyStreets API and parses the response into `WebService::Async::SmartyStreets::Address`.
+Makes connection to SmartyStreets API and parses the response into WebService::Async::SmartyStreets::Address.
+
+    my $addr = $ss->verify(%address_to_check)->get;
 
 Takes the following named parameters:
-- args - address parameters in hash (See `WebService::Async::SmartyStreets/verify_international`)
 
-args consists of the following parameters:
+- `country` - country (required)
+- `address1` - address line 1
+- `address2` - address line 2
+- `organization` - name of organization (usually building names)
+- `locality` - city
+- `administrative_area` - state
+- `postal_code` - post code
+- `geocode` - true or false
 
-- country - country _[COMPULSORY]_
-- address1 - address line 1
-- address2 - address line 2
-- organization - name of organization (usually building names)
-- locality - city
-- administrative_area - state
-- postal_code - post code
-- geocode - true or false
-- api\_choice - _[OPTIONAL]_ will overide the api_choice in config
+Returns a [Future](https://metacpan.org/pod/Future) which should resolve to a valid [WebService::Async::SmartyStreets::Address](https://metacpan.org/pod/WebService%3A%3AAsync%3A%3ASmartyStreets%3A%3AAddress) instance.
 
-## get_decoded_data
+## METHODS - Accessors
 
-Parses the response give by SmartyStreets 
+# METHODS - Internal
 
-More information of the resposne can be seen in [SmartyStreets Documentation](https://smartystreets.com/docs/cloud/international-street-api)
+## get\_decoded\_data
 
-Returns an arrayref of hashrefs which the keys corresponds to `WebService::Async::SmartyStreets::Address`
+Calls the SmartyStreets API then decode and parses the response give by SmartyStreets
+
+    my $decoded = await get_decoded_data($self, $uri)
+
+Takes the following parameters:
+
+- `$uri` - URI for endpoint
+
+More information on the response can be seen in [SmartyStreets Documentation ](https://metacpan.org/pod/%20https%3A#smartystreets.com-docs-cloud-international-street-api).
+
+Returns a [Future](https://metacpan.org/pod/Future) which resolves to an arrayref of [WebService::Async::SmartyStreets::Address](https://metacpan.org/pod/WebService%3A%3AAsync%3A%3ASmartyStreets%3A%3AAddress) instances.
 
 ## configure
 
-configures the class with auth_id and token.
+Configures the instance.
 
-## auth_id
+Takes the following named parameters:
 
-Returns auth_id.
+- `international_auth_id` - auth\_id obtained from SmartyStreet
+- `international_token` - token obtained from SmartyStreet
+- `us_auth_id` - auth\_id obtained from SmartyStreet
+- `us_token` - token obtained from SmartyStreet
 
-## token
-
-Returns token.
-
-## api_choice
-
-Returns api_choice.
+Note that you can provide US, international or both API tokens - if an API token
+is not available for a ["verify"](#verify) call, then it will return a failed [Future](https://metacpan.org/pod/Future).
 
 ## ua
 
-Accessor for the `Net::Async::HTTP` instance which will be used for SmartyStreets API requests.
-
-# AUTHOR
-
-Binary.com
-
+Accessor for the [Net::Async::HTTP](https://metacpan.org/pod/Net%3A%3AAsync%3A%3AHTTP) instance which will be used for SmartyStreets API requests.

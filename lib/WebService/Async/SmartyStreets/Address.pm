@@ -7,7 +7,7 @@ use warnings;
 
 =head1 NAME
 
-WebService::Async::SmartyStreets::Address - object that contains the response from SmartyStreets API 
+WebService::Async::SmartyStreets::Address - object that contains the response from SmartyStreets API
 
 =head1 SYNOPSIS
 
@@ -24,13 +24,13 @@ WebService::Async::SmartyStreets::Address - object that contains the response fr
         });
     # Accessing the attributes
     print ($response->status);
-    
+
 =head1 DESCRIPTION
 
 Represents (parses) the return response from SmartyStreets API in an object
 
 =head2 Construction
-    
+
     WebService::Async::SmartyStreets::Address->new(
         input_id => 12345,
         organization => 'Beenary',
@@ -48,7 +48,7 @@ Represents (parses) the return response from SmartyStreets API in an object
 
 sub new {
     my ($class, %args) = @_;
-    bless \%args, $class
+    return bless \%args, $class
 }
 
 =head2 METHODS - Accessors
@@ -57,61 +57,61 @@ sub new {
 
 =cut
 
-sub input_id { shift->{input_id} }
+sub input_id {return shift->{input_id} }
 
 =head2 organization
 
 =cut
 
-sub organization { shift->{organization} }
+sub organization {return shift->{organization} }
 
 =head2 latitude
 
 =cut
 
-sub latitude { shift->{metadata}{latitude} }
+sub latitude {return shift->{metadata}{latitude} }
 
 =head2 longitude
 
 =cut
 
-sub longitude { shift->{metadata}{longitude} }
+sub longitude {return shift->{metadata}{longitude} }
 
 =head2 geocode_precision
 
 =cut
 
-sub geocode_precision { shift->{metadata}{geocode_precision} }
+sub geocode_precision {return shift->{metadata}{geocode_precision} }
 
 =head2 max_geocode_precision
 
 =cut
 
-sub max_geocode_precision { shift->{metadata}{max_geocode_precision} }
+sub max_geocode_precision {return shift->{metadata}{max_geocode_precision} }
 
 =head2 address_format
 
 =cut
 
-sub address_format { shift->{metadata}{address_format} }
+sub address_format {return shift->{metadata}{address_format} }
 
 =head2 status
 
 =cut
 
-sub status { lc(shift->{analysis}{verification_status} || 'none')}
+sub status {return lc(shift->{analysis}{verification_status} || 'none')}
 
 =head2 address_precision
 
 =cut
 
-sub address_precision { lc(shift->{analysis}{address_precision} // '')}
+sub address_precision {return lc(shift->{analysis}{address_precision} // '')}
 
 =head2 max_address_precision
 
 =cut
 
-sub max_address_precision { lc(shift->{analysis}{max_address_precision} // '')}
+sub max_address_precision {return lc(shift->{analysis}{max_address_precision} // '')}
 
 # Maps each verification response into a score
 my %status_level = (

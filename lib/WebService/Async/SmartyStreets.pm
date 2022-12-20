@@ -4,7 +4,7 @@ package WebService::Async::SmartyStreets;
 use strict;
 use warnings;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 =head1 NAME
 
@@ -87,9 +87,11 @@ Returns a L<Future> which should resolve to a valid L<WebService::Async::SmartyS
 
 =cut
 
+# keyword 'async' will cause critic test fail. disable it
+## no critic (RequireEndWithOne.pm)
 async sub verify {
     my ($self, %args) = @_;
-    
+
     my $uri = $self->country_endpoint($args{country})->clone;
 
     $uri->query_param($_ => $args{$_}) for keys %args;
@@ -108,7 +110,7 @@ async sub verify {
 
     $log->tracef('=> %s', $decoded);
     $decoded = [ $decoded ] unless ref($decoded) eq 'ARRAY';
-   
+
     return map { WebService::Async::SmartyStreets::Address->new(%$_) } @$decoded;
 }
 
@@ -147,7 +149,7 @@ sub token {
 
 =head2 get_decoded_data
 
-Calls the SmartyStreets API then decode and parses the response give by SmartyStreets 
+Calls the SmartyStreets API then decode and parses the response give by SmartyStreets
 
     my $decoded = await get_decoded_data($self, $uri)
 
@@ -157,7 +159,7 @@ Takes the following parameters:
 
 =item * C<$uri> - URI for endpoint
 
-=back 
+=back
 
 More information on the response can be seen in L<SmartyStreets Documentation | https://smartystreets.com/docs/cloud/international-street-api>.
 
