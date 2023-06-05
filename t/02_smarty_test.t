@@ -191,4 +191,109 @@ subtest 'HTTP Error' => sub {
       'Expected strucuted exception thrown';
 };
 
+subtest 'Generic Error: empty body' => sub {
+    $mock_ss->unmock_all;
+    my $uri;
+
+    $user_agent->mock(
+        GET => sub {
+            ( undef, $uri ) = @_;
+            my $res = HTTP::Response->new(500);
+
+            Future::Exception->throw( 'HTTP Failure', 'http', $res );
+        }
+    );
+
+    my $ss = WebService::Async::SmartyStreets->new(
+        international_auth_id => '...',
+        international_token   => '...',
+    );
+
+    my %data = (
+        api_choice          => 'international',
+        address1            => 'Jalan 1223 Jamse Bndo 012',
+        address2            => '03/03',
+        locality            => 'Sukabumi',
+        administrative_area => 'JB',
+        postal_code         => '43145',
+        country             => 'Indonesia',
+        geocode             => 'true',
+    );
+
+    $log->clear;
+
+    my $e = exception { $ss->verify(%data)->get };
+
+    cmp_deeply $log->msgs, [
+        {
+            category => 'WebService::Async::SmartyStreets',
+            message  => re('^GET')
+            ,    # will test the full URI more deeply a couple lines below
+            level => 'trace'
+        }
+      ],
+      'expected trace log found';
+
+    my ($logged_msg) = $log->msgs->@*;
+    my ($logged_url) = $logged_msg->{message} =~ /^GET\s(.*)$/;
+    my $logged_uri   = URI->new($logged_url);
+
+    cmp_deeply $logged_uri, $uri, 'Same urls';
+
+    ok $e =~ /Unable to retrieve response/, 'Expected generic exception thrown';
+};
+
+subtest 'Generic Error: non conforming json' => sub {
+    $mock_ss->unmock_all;
+    my $uri;
+
+    $user_agent->mock(
+        GET => sub {
+            ( undef, $uri ) = @_;
+            my $res = HTTP::Response->new(500);
+            $res->content('{}');
+
+            Future::Exception->throw( 'HTTP Failure', 'http', $res );
+        }
+    );
+
+    my $ss = WebService::Async::SmartyStreets->new(
+        international_auth_id => '...',
+        international_token   => '...',
+    );
+
+    my %data = (
+        api_choice          => 'international',
+        address1            => 'Jalan 1223 Jamse Bndo 012',
+        address2            => '03/03',
+        locality            => 'Sukabumi',
+        administrative_area => 'JB',
+        postal_code         => '43145',
+        country             => 'Indonesia',
+        geocode             => 'true',
+    );
+
+    $log->clear;
+
+    my $e = exception { $ss->verify(%data)->get };
+
+    cmp_deeply $log->msgs, [
+        {
+            category => 'WebService::Async::SmartyStreets',
+            message  => re('^GET')
+            ,    # will test the full URI more deeply a couple lines below
+            level => 'trace'
+        }
+      ],
+      'expected trace log found';
+
+    my ($logged_msg) = $log->msgs->@*;
+    my ($logged_url) = $logged_msg->{message} =~ /^GET\s(.*)$/;
+    my $logged_uri   = URI->new($logged_url);
+
+    cmp_deeply $logged_uri, $uri, 'Same urls';
+
+    ok $e =~ /Unable to retrieve response/, 'Expected generic exception thrown';
+};
+
 done_testing();

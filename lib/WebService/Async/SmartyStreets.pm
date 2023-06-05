@@ -1,4 +1,5 @@
 package WebService::Async::SmartyStreets;
+
 # ABSTRACT: Access SmartyStreet API
 
 use strict;
@@ -90,28 +91,25 @@ Returns a L<Future> which should resolve to a valid L<WebService::Async::SmartyS
 # keyword 'async' will cause critic test fail. disable it
 ## no critic (RequireEndWithOne.pm)
 async sub verify {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    my $uri = $self->country_endpoint($args{country})->clone;
+    my $uri = $self->country_endpoint( $args{country} )->clone;
 
-    $uri->query_param($_ => $args{$_}) for keys %args;
-    $uri->query_param(
-        'auth-id' => ($self->auth_id($args{country}) // die 'need an auth ID'),
-    );
-    $uri->query_param(
-        'auth-token' => ($self->token($args{country}) // die 'need an auth token'),
-    );
-    $uri->query_param(
-        'input-id' => $self->next_id,
-    );
-    $log->tracef('GET %s', '' . $uri);
+    $uri->query_param( $_ => $args{$_} ) for keys %args;
+    $uri->query_param( 'auth-id' =>
+          ( $self->auth_id( $args{country} ) // die 'need an auth ID' ), );
+    $uri->query_param( 'auth-token' =>
+          ( $self->token( $args{country} ) // die 'need an auth token' ), );
+    $uri->query_param( 'input-id' => $self->next_id, );
+    $log->tracef( 'GET %s', '' . $uri );
 
-    my $decoded = await get_decoded_data($self, $uri);
+    my $decoded = await get_decoded_data( $self, $uri );
 
-    $log->tracef('=> %s', $decoded);
-    $decoded = [ $decoded ] unless ref($decoded) eq 'ARRAY';
+    $log->tracef( '=> %s', $decoded );
+    $decoded = [$decoded] unless ref($decoded) eq 'ARRAY';
 
-    return map { WebService::Async::SmartyStreets::Address->new(%$_) } @$decoded;
+    return
+      map { WebService::Async::SmartyStreets::Address->new(%$_) } @$decoded;
 }
 
 =head2 METHODS - Accessors
@@ -119,31 +117,32 @@ async sub verify {
 =cut
 
 sub country_endpoint {
-    my ($self, $country) = @_;
+    my ( $self, $country ) = @_;
     return $self->us_endpoint if uc($country) eq 'US';
     return $self->international_endpoint;
 }
 
 sub us_endpoint {
-    shift->{us_endpoint} //= URI->new('https://us-street.api.smartystreets.com/street-address');
+    shift->{us_endpoint} //=
+      URI->new('https://us-street.api.smartystreets.com/street-address');
 }
 
 sub international_endpoint {
-    shift->{international_endpoint} //= URI->new('https://international-street.api.smartystreets.com/verify');
+    shift->{international_endpoint} //=
+      URI->new('https://international-street.api.smartystreets.com/verify');
 }
 
 sub auth_id {
-    my ($self, $country) = @_;
+    my ( $self, $country ) = @_;
     return $self->{us_auth_id} if uc($country) eq 'US';
     return $self->{international_auth_id};
 }
 
 sub token {
-    my ($self, $country) = @_;
+    my ( $self, $country ) = @_;
     return $self->{us_token} if uc($country) eq 'US';
     return $self->{international_token};
 }
-
 
 =head1 METHODS - Internal
 
@@ -169,24 +168,27 @@ Returns a L<Future> which resolves to an arrayref of L<WebService::Async::Smarty
 
 async sub get_decoded_data {
     my $self = shift;
-    my $uri = shift;
+    my $uri  = shift;
 
     my $res;
     try {
         $res = await $self->ua->GET($uri);
     }
     catch ($e) {
-        if (blessed($e) and $e->isa('Future::Exception')) {
+        if ( blessed($e) and $e->isa('Future::Exception') ) {
             my ($payload) = $e->details;
 
-            if (blessed($payload) && $payload->can('content')) {
-                my $resp = decode_json_utf8($payload->content);
-                my $errors = $resp->{errors} // [];
-                my ($error) = $errors->@*;
+            if ( blessed($payload) && $payload->can('content') ) {
+                if ( my $resp = eval { decode_json_utf8( $payload->content ) } )
+                {
+                    my $errors = $resp->{errors} // [];
+                    my ($error) = $errors->@*;
 
-                if ($error && $error->{message}) {
-                    # structured response may be useful for further processing
-                    die $e; 
+                    if ( $error && $error->{message} ) {
+
+                      # structured response may be useful for further processing
+                        die $e;
+                    }
                 }
             }
         }
@@ -195,7 +197,7 @@ async sub get_decoded_data {
         die 'Unable to retrieve response.';
     };
 
-    my $response = decode_json_utf8($res->decoded_content);
+    my $response = decode_json_utf8( $res->decoded_content );
 
     return $response->[0];
 }
@@ -224,15 +226,17 @@ is not available for a L</verify> call, then it will return a failed L<Future>.
 =cut
 
 sub configure {
-    my ($self, %args) = @_;
-    for my $k (qw(international_auth_id international_token us_auth_id us_token)) {
+    my ( $self, %args ) = @_;
+    for
+      my $k (qw(international_auth_id international_token us_auth_id us_token))
+    {
         $self->{$k} = delete $args{$k} if exists $args{$k};
     }
     $self->next::method(%args);
 }
 
 sub next_id {
-    ++(shift->{id} //= 'AA00000000');
+    ++( shift->{id} //= 'AA00000000' );
 }
 
 =head2 ua
@@ -250,11 +254,12 @@ sub ua {
                 decode_content           => 1,
                 pipeline                 => 0,
                 max_connections_per_host => 4,
-                user_agent =>
-                    'Mozilla/4.0 (WebService::Async::SmartyStreets; BINARY@cpan.org; https://metacpan.org/pod/WebService::Async::SmartyStreets)',
-            ));
+                user_agent               =>
+'Mozilla/4.0 (WebService::Async::SmartyStreets; BINARY@cpan.org; https://metacpan.org/pod/WebService::Async::SmartyStreets)',
+            )
+        );
         $ua;
-        }
+    }
 }
 
 1;
