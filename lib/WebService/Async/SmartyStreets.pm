@@ -185,11 +185,13 @@ async sub get_decoded_data {
                 my ($error) = $errors->@*;
 
                 if ($error && $error->{message}) {
-                    $log->warnf(sprintf("SmartyStreets HTTP status %d error: %s",$payload->code, $error->{message}));
+                    # structured response may be useful for further processing
+                    die $e; 
                 }
             }
         }
 
+        # throw a generic error
         die 'Unable to retrieve response.';
     };
 
