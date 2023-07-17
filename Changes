@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        Refine Logs.
 
 0.001     2022-11-13 08:00:53+00:00 UTC
 
